@@ -26,7 +26,7 @@ const slashCommands=[
 const healthServer=createServer((req,res)=>{
  if(req.url==='/ingest'&&req.method==='POST'){
   if(req.headers['x-swagrust-secret']!==process.env.RUST_API_SECRET){res.writeHead(401);return res.end('unauthorized');}
-  let body='';req.on('data',chunk=>{if(body.length<5000000)body+=chunk;});req.on('end',()=>{try{const data=JSON.parse(body);pushedServerState={...data,receivedAt:Date.now()};for(const [discordId,steamId] of Object.entries(data.links||{}))localLinks.set(discordId,String(steamId));const claims=pendingClaims.splice(0);res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify({claims}));}catch{res.writeHead(400);res.end('invalid json');}});return;
+  let body='';req.on('data',chunk=>{if(body.length<5000000)body+=chunk;});req.on('end',()=>{try{const data=JSON.parse(body);pushedServerState={...data,receivedAt:Date.now()};for(const [discordId,steamId] of Object.entries(data.links||{}))localLinks.set(discordId,String(steamId));const claims=pendingClaims.splice(0);console.log(`Ingest: игрок=${data.players}/${data.maxPlayers} статистик=${Array.isArray(data.stats)?data.stats.length:0} кодов=${Object.keys(data.codes||{}).length} привязок=${Object.keys(data.links||{}).length}`);res.writeHead(200,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify({claims}));}catch{res.writeHead(400);res.end('invalid json');}});return;
  }
  if(req.url!=='/'&&req.url!=='/health'){res.writeHead(404);return res.end('not found');}
  const ready=client.isReady();
