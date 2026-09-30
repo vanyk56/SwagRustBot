@@ -1,0 +1,8 @@
+{
+  "name":"swagrust-discord-bot",
+  "version":"1.0.0",
+  "private":true,
+  "type":"module",
+  "scripts":{"start":"node src/index.js","deploy":"node src/deploy-commands.js","check":"node --check src/index.js && node --check src/deploy-commands.js"},
+  "dependencies":{"@discordjs/rest":"^2.4.3","discord.js":"^14.23.2","dotenv":"^16.4.7","gamedig":"^5.3.1"}
+}
