@@ -130,7 +130,7 @@ client.on(Events.InteractionCreate,async i=>{try{
  if(i.isChatInputCommand()){
   if(i.commandName==='setup'){if(!i.memberPermissions?.has(PermissionFlagsBits.ManageGuild))return i.reply({content:'Нужно право «Управлять сервером».',ephemeral:true});const m=await i.channel.send({components:[statsPanel()],flags:MessageFlags.IsComponentsV2});await m.pin().catch(()=>null);return i.reply({content:'Панель статистики опубликована и закреплена.',ephemeral:true});}
   if(i.commandName==='setup-ideas'){const m=await i.channel.send({components:[ideasPanel()],flags:MessageFlags.IsComponentsV2});await m.pin().catch(()=>null);return i.reply({content:'Панель идей опубликована и закреплена в этом канале.',ephemeral:true});}
-  if(i.commandName==='setup-ideas-channel'){ideaChannelId=i.channelId;return i.reply({content:'Этот канал назначен для публикации идей. Для сохранения после перезапуска добавьте в Railway: IDEAS_CHANNEL_ID='+i.channelId,ephemeral:true});}
+  if(i.commandName==='setup-ideas-channel'){ideaChannelId=i.channelId;return i.reply({content:'Этот канал назначен для публикации идей.',ephemeral:true});}
   if(i.commandName==='setup-info'){const m=await i.channel.send({components:[infoPanel()],flags:MessageFlags.IsComponentsV2,allowedMentions:{parse:['everyone']}});await m.pin().catch(()=>null);return i.reply({content:'Информация опубликована, @everyone упомянут и сообщение закреплено.',ephemeral:true});}
   if(i.commandName==='status')return i.reply({embeds:[await statusEmbed()]});
   if(i.commandName==='stats')return myStats(i,i.options.getUser('user')?.id||i.user.id);
