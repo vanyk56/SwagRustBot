@@ -90,8 +90,26 @@ function menuRows(){return[new ActionRowBuilder().addComponents(
  new ButtonBuilder().setCustomId('sw_top').setLabel('Топ-5 игроков').setStyle(ButtonStyle.Secondary),
  new ButtonBuilder().setCustomId('sw_stats').setLabel('Моя статистика').setStyle(ButtonStyle.Secondary))];}
 function statsPanel(){return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent('### Статистика SwagRust\nВыберите действие ниже.')).addActionRowComponents(menuRows()[0]);}
-function ideasPanel(){const row=new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('idea_open').setLabel('Предложить идею').setStyle(ButtonStyle.Secondary));return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent('### Идеи и предложения\nПредложите изменение или новую возможность для сервера. После публикации участники смогут проголосовать.')).addActionRowComponents(row);}
-function infoPanel(){const q=String.fromCharCode(96);const b=['@everyone','# '+q+'SWAG RUST'+q+'','','### '+q+'Информация о сервере'+q+'','','**[Telegram](https://t.me/swaggrust)**','','**Вайпы**','Понедельник и пятница — **16:00 МСК**','','**Подключение к серверу**',q+q+'connect 157.85.87.131:28061'+q+q+'','','### '+q+'Особенности сервера'+q+'','',''+q+'NOLIMIT • EVENTS • TELEPORT • KITS • LOOT+'+q+'','','Желаем удачной игры — до встречи на сервере!'].join('\n');return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(b));}
+function ideasPanel(){const row=new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('idea_open').setLabel('Предложить идею').setStyle(ButtonStyle.Secondary),new ButtonBuilder().setCustomId('wipe_open').setLabel('Вайпы').setStyle(ButtonStyle.Secondary));return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent('### Идеи и предложения\nПредложите изменение или новую возможность для сервера. После публикации участники смогут проголосовать.')).addActionRowComponents(row);}
+function infoPanel(){const q=String.fromCharCode(96);const b=['@everyone','# '+q+'SWAG RUST'+q+'','','### '+q+'Информация о сервере'+q+'','','**[Telegram](https://t.me/swaggrust)**','','**Вайпы**','Понедельник и пятница — **16:00 МСК**','','**Подключение к серверу**',q+q+'connect 157.85.87.131:28061'+q+q+'','','### '+q+'Особенности сервера'+q+'','',''+q+'NOLIMIT • EVENTS • TELEPORT • KITS • LOOT+'+q+'','','Желаем удачной игры — до встречи на сервере!'].join('\n');return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(b)).addActionRowComponents(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('wipe_open').setLabel('Вайпы').setStyle(ButtonStyle.Secondary)));}
+function wipeCalendar(offset){
+ const now=new Date();let y=now.getUTCFullYear(),m=now.getUTCMonth()+offset;
+ y+=Math.floor(m/12);m=((m%12)+12)%12;
+ const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+ const MG=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+ const WD=['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+ const dim=new Date(Date.UTC(y,m+1,0)).getUTCDate(),lead=(new Date(Date.UTC(y,m,1)).getUTCDay()+6)%7,cells=[];
+ for(let i=0;i<lead;i++)cells.push('    ');
+ for(let d=1;d<=dim;d++){const wd=new Date(Date.UTC(y,m,d)).getUTCDay();cells.push(wd===1||wd===5?'['+String(d).padStart(2)+']':' '+String(d).padStart(2)+' ');}
+ while(cells.length%7)cells.push('    ');
+ let grid='';for(let r=0;r<cells.length/7;r++)grid+=cells.slice(r*7,r*7+7).join('')+'\n';
+ const msk=new Date(Date.now()+10800000);let next=null;
+ for(let add=0;add<14&&!next;add++){const d=new Date(Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth(),msk.getUTCDate()+add));const wd=d.getUTCDay();if(wd!==1&&wd!==5)continue;if(add===0&&msk.getUTCHours()>=16)continue;next=d;}
+ const q=String.fromCharCode(96);
+ const b=['# 🗓 Вайпы сервера','','Каждый **понедельник** и **пятницу** в **16:00 МСК**','','**'+MN[m]+' '+y+'**',q+q+q+grid.trimEnd()+q+q+q,'',q+'[дата]'+q+' — день вайпа','',next?'**Ближайший вайп:** '+WD[next.getUTCDay()]+', '+next.getUTCDate()+' '+MG[next.getUTCMonth()]+' — 16:00 МСК':''].join('\n');
+ const row=new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('wipe_nav_'+(offset-1)).setLabel('◀ Пред. месяц').setStyle(ButtonStyle.Secondary),new ButtonBuilder().setCustomId('wipe_nav_'+(offset+1)).setLabel('След. месяц ▶').setStyle(ButtonStyle.Secondary));
+ return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(b)).addActionRowComponents(row);
+}
 const fmt=s=>`${Math.floor(s/3600)}ч ${Math.floor(s%3600/60)}м`;
 function statsEmbed(p){
  const kd=p.deaths?(p.kills/p.deaths).toFixed(2):p.kills.toFixed(2);
@@ -142,6 +160,8 @@ client.on(Events.InteractionCreate,async i=>{try{
   if(i.customId==='sw_stats')return myStats(i);
   if(i.customId==='sw_top')return top(i,'score',5);
   if(i.customId==='idea_open')return i.showModal(ideaModal());
+  if(i.customId==='wipe_open')return i.reply({components:[wipeCalendar(0)],flags:MessageFlags.IsComponentsV2|MessageFlags.Ephemeral});
+  if(i.customId.startsWith('wipe_nav_'))return i.update({components:[wipeCalendar(parseInt(i.customId.slice(9))||0)]});
   if(i.customId.startsWith('idea_')){const map=votes.get(i.message.id)||new Map(),choice=i.customId==='idea_up'?'up':'down';map.set(i.user.id,choice);votes.set(i.message.id,map);let up=0,down=0;for(const v of map.values())v==='up'?up++:down++;return i.update({components:[ideaRow(up,down)]});}
  }
  if(i.isModalSubmit()){
