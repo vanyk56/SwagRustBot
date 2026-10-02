@@ -91,8 +91,8 @@ function menuRows(){return[new ActionRowBuilder().addComponents(
  new ButtonBuilder().setCustomId('sw_stats').setLabel('Моя статистика').setStyle(ButtonStyle.Secondary))];}
 function statsPanel(){return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent('### Статистика SwagRust\nВыберите действие ниже.')).addActionRowComponents(menuRows()[0]);}
 function ideasPanel(){const row=new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('idea_open').setLabel('Предложить идею').setStyle(ButtonStyle.Secondary));return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent('### Идеи и предложения\nПредложите изменение или новую возможность для сервера. После публикации участники смогут проголосовать.')).addActionRowComponents(row);}
-function infoPanel(){const q=String.fromCharCode(96);const b=['@everyone','# '+q+'SWAG RUST'+q+'','','### '+q+'Информация о сервере'+q+'','','**[Telegram](https://t.me/swaggrust)**','','**Вайпы**','Понедельник и пятница — **16:00 МСК**','','**Подключение к серверу**',q+q+'connect 157.85.87.131:28061'+q+q+'','','### '+q+'Особенности сервера'+q+'','',''+q+'NOLIMIT • EVENTS • TELEPORT • KITS • LOOT+'+q+'','','Желаем удачной игры — до встречи на сервере!'].join('\n');return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(b)).addActionRowComponents(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('wipe_open').setLabel('Вайпы').setStyle(ButtonStyle.Secondary)));}
-function wipeCalendar(offset){
+let lastInfoPanel=null;
+function wipeCal(offset){
  const now=new Date();let y=now.getUTCFullYear(),m=now.getUTCMonth()+offset;
  y+=Math.floor(m/12);m=((m%12)+12)%12;
  const MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -105,8 +105,24 @@ function wipeCalendar(offset){
  let grid='';for(let r=0;r<cells.length/7;r++)grid+=cells.slice(r*7,r*7+7).join('')+'\n';
  const msk=new Date(Date.now()+10800000);let next=null;
  for(let add=0;add<14&&!next;add++){const d=new Date(Date.UTC(msk.getUTCFullYear(),msk.getUTCMonth(),msk.getUTCDate()+add));const wd=d.getUTCDay();if(wd!==1&&wd!==5)continue;if(add===0&&msk.getUTCHours()>=16)continue;next=d;}
- const q=String.fromCharCode(96);
- const b=['# 🗓 Вайпы сервера','','Каждый **понедельник** и **пятницу** в **16:00 МСК**','','**'+MN[m]+' '+y+'**',q+q+q+grid.trimEnd()+q+q+q,'',q+'[дата]'+q+' — день вайпа','',next?'**Ближайший вайп:** '+WD[next.getUTCDay()]+', '+next.getUTCDate()+' '+MG[next.getUTCMonth()]+' — 16:00 МСК':''].join('\n');
+ return{month:MN[m]+' '+y,grid:' Пн  Вт  Ср  Чт  Пт  Сб  Вс\n'+grid.trimEnd(),next:next?WD[next.getUTCDay()]+', '+next.getUTCDate()+' '+MG[next.getUTCMonth()]+' — 16:00 МСК':''};
+}
+function infoPanel(){
+ const q=String.fromCharCode(96);const c=wipeCal(0);const h='▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
+ const b=['@everyone','# SWAG RUST','',h,'','### 📢 Информация о сервере','',
+  '**[Telegram](https://t.me/swaggrust)**','',
+  '**Подключение к серверу**',q+q+'connect 157.85.87.131:28061'+q+q,'',
+  '### 🗓 Вайпы','',
+  'Каждый **понедельник** и **пятницу** в **16:00 МСК**','',
+  '**'+c.month+'**',q+q+q+c.grid+q+q+q,'',q+'[дата]'+q+' — день вайпа','',
+  c.next?'**Ближайший вайп:** '+c.next:'','',
+  '### ✨ Особенности сервера','',q+'NOLIMIT • EVENTS • TELEPORT • KITS • LOOT+'+q,'',
+  h,'','Желаем удачной игры — до встречи на сервере!'].join('\n');
+ return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(b)).addActionRowComponents(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('wipe_open').setLabel('Календарь вайпов').setStyle(ButtonStyle.Secondary)));
+}
+function wipeCalendar(offset){
+ const c=wipeCal(offset),q=String.fromCharCode(96);
+ const b=['# 🗓 Вайпы сервера','','Каждый **понедельник** и **пятницу** в **16:00 МСК**','','**'+c.month+'**',q+q+q+c.grid+q+q+q,'',q+'[дата]'+q+' — день вайпа','',c.next?'**Ближайший вайп:** '+c.next:''].join('\n');
  const row=new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('wipe_nav_'+(offset-1)).setLabel('◀ Пред. месяц').setStyle(ButtonStyle.Secondary),new ButtonBuilder().setCustomId('wipe_nav_'+(offset+1)).setLabel('След. месяц ▶').setStyle(ButtonStyle.Secondary));
  return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(b)).addActionRowComponents(row);
 }
@@ -143,13 +159,15 @@ client.once(Events.ClientReady,async c=>{
  };
  await refresh();
  setInterval(refresh,Math.max(30,Number(process.env.STATUS_INTERVAL_SECONDS||60))*1000).unref();
+ // Панель /setup-info содержит календарь месяца и «Ближайший вайп» — обновляем её, чтобы данные не устаревали.
+ setInterval(async()=>{if(!lastInfoPanel)return;try{const ch=await client.channels.fetch(lastInfoPanel.channelId),m=await ch.messages.fetch(lastInfoPanel.messageId);await m.edit({components:[infoPanel()]});}catch{lastInfoPanel=null;}},12*60*60*1000).unref();
 });
 client.on(Events.InteractionCreate,async i=>{try{
  if(i.isChatInputCommand()){
   if(i.commandName==='setup'){if(!i.memberPermissions?.has(PermissionFlagsBits.ManageGuild))return i.reply({content:'Нужно право «Управлять сервером».',ephemeral:true});const m=await i.channel.send({components:[statsPanel()],flags:MessageFlags.IsComponentsV2});await m.pin().catch(()=>null);return i.reply({content:'Панель статистики опубликована и закреплена.',ephemeral:true});}
   if(i.commandName==='setup-ideas'){const m=await i.channel.send({components:[ideasPanel()],flags:MessageFlags.IsComponentsV2});await m.pin().catch(()=>null);return i.reply({content:'Панель идей опубликована и закреплена в этом канале.',ephemeral:true});}
   if(i.commandName==='setup-ideas-channel'){ideaChannelId=i.channelId;return i.reply({content:'Этот канал назначен для публикации идей.',ephemeral:true});}
-  if(i.commandName==='setup-info'){const m=await i.channel.send({components:[infoPanel()],flags:MessageFlags.IsComponentsV2,allowedMentions:{parse:['everyone']}});await m.pin().catch(()=>null);return i.reply({content:'Информация опубликована, @everyone упомянут и сообщение закреплено.',ephemeral:true});}
+  if(i.commandName==='setup-info'){const m=await i.channel.send({components:[infoPanel()],flags:MessageFlags.IsComponentsV2,allowedMentions:{parse:['everyone']}});await m.pin().catch(()=>null);lastInfoPanel={channelId:i.channelId,messageId:m.id};return i.reply({content:'Информация опубликована, @everyone упомянут и сообщение закреплено.',ephemeral:true});}
   if(i.commandName==='status')return i.reply({embeds:[await statusEmbed()]});
   if(i.commandName==='stats')return myStats(i,i.options.getUser('user')?.id||i.user.id);
   if(i.commandName==='top')return top(i,i.options.getString('category'));
