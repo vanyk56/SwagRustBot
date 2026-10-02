@@ -107,13 +107,16 @@ function wipeCal(offset){ const now=new Date();let y=now.getUTCFullYear(),m=now.
 }
 function infoPanel(){
  const q=String.fromCharCode(96);const h='▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬';
- const b=['@everyone','# SWAG RUST','',h,'','### 📢 Информация о сервере','',
+ const top=['@everyone','# SWAG RUST','',h,'','### 📢 Информация о сервере','',
   '**[Telegram](https://t.me/swaggrust)**','',
-  '**Вайпы**','Понедельник и пятница — **16:00 МСК**','',
-  '**Подключение к серверу**',q+q+'connect 157.85.87.131:28061'+q+q,'',
+  '**Вайпы**'].join('\n');
+ const bottom=['','**Подключение к серверу**',q+q+'connect 157.85.87.131:28061'+q+q,'',
   '### ✨ Особенности сервера','',q+'NOLIMIT • EVENTS • TELEPORT • KITS • LOOT+'+q,'',
   h,'','Желаем удачной игры — до встречи на сервере!'].join('\n');
- return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(b)).addActionRowComponents(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('wipe_open').setLabel('Календарь вайпов').setStyle(ButtonStyle.Secondary)));
+ return new ContainerBuilder().setAccentColor(color)
+  .addTextDisplayComponents(new TextDisplayBuilder().setContent(top))
+  .addActionRowComponents(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('wipe_open').setLabel('Календарь вайпов').setStyle(ButtonStyle.Secondary)))
+  .addTextDisplayComponents(new TextDisplayBuilder().setContent(bottom));
 }
 function wipeCalendar(offset){
  const c=wipeCal(offset),q=String.fromCharCode(96);
