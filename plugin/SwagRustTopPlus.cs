@@ -41,7 +41,7 @@ namespace Oxide.Plugins
             public bool EnablePush = true;
             public string PushUrl = "https://ВАШ-БОТ.up.railway.app/ingest";
             public int PushIntervalSeconds = 30;
-            public string ConnectAddress = "157.85.87.131:28061";
+            public string ConnectAddress = "157.85.87.25:26932";
             public bool ResetStatsOnNewSave = false;
             public int LinkCodeMinutes = 10;
             public float KillScore = 2f, DeathScore = -0.5f, FarmScorePerThousand = 0.2f, RaidScore = 0.5f;
