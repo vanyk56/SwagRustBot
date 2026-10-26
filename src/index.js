@@ -68,8 +68,8 @@ async function queryServer(){
  }
  if(process.env.RUST_HOST){
   try{
-   const s=await GameDig.query({type:'rust',host:process.env.RUST_HOST,port:Number(process.env.RUST_QUERY_PORT||28062),maxAttempts:2,socketTimeout:4000});
-   return{online:true,name:s.name||brand,map:s.map||'—',players:Number(s.numplayers||0),max:Number(s.maxplayers||0),ping:s.ping,connect:`${process.env.RUST_HOST}:${process.env.RUST_CONNECT_PORT||28061}`,source:'Live Query'};
+   const s=await GameDig.query({type:'rust',host:process.env.RUST_HOST,port:Number(process.env.RUST_QUERY_PORT||26933),maxAttempts:2,socketTimeout:4000});
+   return{online:true,name:s.name||brand,map:s.map||'—',players:Number(s.numplayers||0),max:Number(s.maxplayers||0),ping:s.ping,connect:`${process.env.RUST_HOST}:${process.env.RUST_CONNECT_PORT||26932}`,source:'Live Query'};
   }catch(e){console.warn(`Прямой Query недоступен: ${e.message}; пробую GameMonitoring`);}
  }
  if(process.env.GAMEMONITORING_SERVER_ID){
@@ -84,7 +84,7 @@ async function queryServer(){
  return{online:false,name:brand,map:'—',players:0,max:0,ping:null};
 }
 async function statusEmbed(){
- const s=await queryServer(),address=s.connect||`${process.env.RUST_HOST||'127.0.0.1'}:${process.env.RUST_CONNECT_PORT||28061}`,connect=`connect ${address}`;
+ const s=await queryServer(),address=s.connect||`${process.env.RUST_HOST||'127.0.0.1'}:${process.env.RUST_CONNECT_PORT||26932}`,connect=`connect ${address}`;
  return new EmbedBuilder().setColor(s.online?0x43b581:0xed4245).setTitle(`${s.online?'🟢':'🔴'} ${s.name}`).setDescription(s.online?`Сервер работает\n\`${connect}\``:'Сервер сейчас недоступен').addFields({name:'Онлайн',value:`${s.players}/${s.max}`,inline:true},{name:'Карта',value:s.map||'—',inline:true},{name:'Пинг',value:s.ping==null?'—':`${s.ping} мс`,inline:true}).setFooter({text:`${brand} • ${s.source||'прямой Query'} • обновлено`}).setTimestamp();
 }
 function menuRows(){return[new ActionRowBuilder().addComponents(
@@ -111,7 +111,7 @@ function infoPanel(){
  const top=['@everyone','# SWAG RUST','',h,'','### 📢 Информация о сервере','',
   '**[Telegram](https://t.me/swaggrust)**','',
   '**Вайпы**'].join('\n');
- const bottom=['','**Подключение к серверу**',q+q+'connect 157.85.87.131:28061'+q+q,'',
+ const bottom=['','**Подключение к серверу**',q+q+'connect 157.85.87.25:26932'+q+q,'',
   '### ✨ Особенности сервера','',q+'NOLIMIT • EVENTS • TELEPORT • KITS • LOOT+'+q,'',
   h,'','Желаем удачной игры — до встречи на сервере!'].join('\n');
  return new ContainerBuilder().setAccentColor(color)

@@ -33,7 +33,7 @@
 {
   "name": "имя сервера", "map": "карта",
   "players": 5, "maxPlayers": 125, "sleepers": 12,
-  "connect": "157.85.87.131:28061",
+  "connect": "157.85.87.25:26932",
   "stats": [ { "steamId": "...", "name": "...", "kills": 10, ... } ],
   "codes": { "123456": { "steamId": "...", "expiresAt": 1234567890 } },
   "links": { "discordId": "steamId" }
@@ -60,7 +60,7 @@
 2. После первой загрузки откроется конфиг `oxide/config/SwagRustTopPlus.json` — заполните:
    - `ApiSecret` — тот же секрет, что в Railway (`RUST_API_SECRET`), длинная случайная строка
    - `PushUrl` — `https://<ваш-бот>.up.railway.app/ingest` (адрес бота на Railway)
-   - `ConnectAddress` — уже `157.85.87.131:28061`
+   - `ConnectAddress` — уже `157.85.87.25:26932`
 3. Выдайте право игрокам: `oxide.grant group default swagrusttop.use`
 4. Перезагрузите плагин: `oxide.reload SwagRustTopPlus`
 
@@ -83,9 +83,9 @@
 | `RUST_API_SECRET` | да | длинная случайная строка; совпадает с `ApiSecret` в конфиге плагина |
 | `DISCORD_CLIENT_ID` | да* | Application ID (нужен для отдельной регистрации команд) |
 | `DISCORD_GUILD_ID` | нет | ID вашего Discord-сервера — команды появятся мгновенно; без него команды глобальные |
-| `RUST_HOST` | нет | `157.85.87.131` — прямой A2S Query онлайна |
-| `RUST_QUERY_PORT` | нет | `28062` (обычно connect-порт + 1) |
-| `RUST_CONNECT_PORT` | нет | `28061` |
+| `RUST_HOST` | нет | `157.85.87.25` — прямой A2S Query онлайна |
+| `RUST_QUERY_PORT` | нет | `26933` (обычно connect-порт + 1) |
+| `RUST_CONNECT_PORT` | нет | `26932` |
 | `GAMEMONITORING_SERVER_ID` | нет | `16908677` — резервный источник онлайна |
 | `GAMEMONITORING_API_BASE` | нет | `https://api.gamemonitoring.ru` (или `.net`) |
 | `RUST_API_URL` | нет | публичный HTTPS-адрес API плагина (порт 28110), если он есть |
